@@ -23,11 +23,6 @@ public class TaskEntity {
     @Column(unique = true)
     private String name;
 
-    private Long ordinal;
-
-    @Builder.Default
-    private Instant createAt = Instant.now();
-
     private String description;
 
 
