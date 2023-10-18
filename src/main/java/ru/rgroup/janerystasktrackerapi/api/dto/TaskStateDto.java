@@ -1,11 +1,11 @@
 package ru.rgroup.janerystasktrackerapi.api.dto;
 
-import jakarta.persistence.Column;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import org.antlr.v4.runtime.misc.NotNull;
-import org.hibernate.annotations.NotFound;
+
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -17,8 +17,14 @@ public class TaskStateDto {
     private Long id;
     @NonNull
     private String name;
+
+    @JsonProperty("left_task_state_id")
+    private Long leftTaskStateId;
+    @JsonProperty("right_task_state_id")
+    private Long rightTaskStateId;
     @NonNull
-    private Long ordinal;
-    @NonNull
+    @JsonProperty("created_at")
     private Instant createAt;
+    @NonNull
+    private List<TaskDto> tasks;
 }

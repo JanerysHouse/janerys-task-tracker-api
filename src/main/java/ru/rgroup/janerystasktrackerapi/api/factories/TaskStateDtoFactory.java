@@ -1,13 +1,17 @@
 package ru.rgroup.janerystasktrackerapi.api.factories;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.rgroup.janerystasktrackerapi.api.dto.ProjectDto;
 import ru.rgroup.janerystasktrackerapi.api.dto.TaskStateDto;
-import ru.rgroup.janerystasktrackerapi.store.entittes.ProjectEntity;
 import ru.rgroup.janerystasktrackerapi.store.entittes.TaskStateEntity;
 
+import java.util.stream.Collectors;
+
+@RequiredArgsConstructor
 @Component
 public class TaskStateDtoFactory {
+
+    private final TaskDtoFactory taskDtoFactory;
 
     public TaskStateDto makeTaskStateDto(TaskStateEntity entity) {
 
@@ -15,7 +19,12 @@ public class TaskStateDtoFactory {
                 .id(entity.getId())
                 .name(entity.getName())
                 .createAt(entity.getCreateAt())
-                .ordinal(entity.getOrdinal())
+                .leftTaskStateId(entity.getLeftTaskState().map(TaskStateEntity::getId).orElse(null))
+                .rightTaskStateId(entity.getRightTaskState().map(TaskStateEntity::getId).orElse(null))
+                .tasks(entity.getTask()
+                        .stream()
+                        .map(taskDtoFactory::makeTaskDto)
+                        .collect(Collectors.toList()))
                 .build();
     }
 

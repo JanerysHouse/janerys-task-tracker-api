@@ -3,10 +3,10 @@ package ru.rgroup.janerystasktrackerapi.api.controllers;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.rgroup.janerystasktrackerapi.api.controllers.helpers.ControllerHelper;
 import ru.rgroup.janerystasktrackerapi.api.dto.AskDto;
 import ru.rgroup.janerystasktrackerapi.api.dto.ProjectDto;
 import ru.rgroup.janerystasktrackerapi.api.exceptions.BadRequestException;
-import ru.rgroup.janerystasktrackerapi.api.exceptions.NotFoundException;
 import ru.rgroup.janerystasktrackerapi.api.factories.ProjectDtoFactory;
 import ru.rgroup.janerystasktrackerapi.store.entittes.ProjectEntity;
 import ru.rgroup.janerystasktrackerapi.store.repositories.ProjectRepository;
@@ -25,6 +25,7 @@ public class ProjectController {
 
     private final ProjectRepository projectRepository;
     private final ProjectDtoFactory projectDtoFactory;
+    private final ControllerHelper controllerHelper;
 
     public static final String FETCH_PROJECTS = "/api/projects";
     public static final String DELETE_PROJECT = "/api/project/{project_id}";
@@ -38,7 +39,7 @@ public class ProjectController {
 
         Stream<ProjectEntity> projectStream = optionalPrefixName
                 .map(projectRepository::streamAllByNameStartsWithIgnoreCase)
-                .orElseGet(projectRepository::streamAll);
+                .orElseGet(projectRepository::streamAllBy);
 
         return projectStream
                 .map(projectDtoFactory::makeProjectDto)
@@ -58,7 +59,7 @@ public class ProjectController {
         }
 
         final ProjectEntity project = optionalProjectId
-                .map(this::getProjectOrThrowException)
+                .map(controllerHelper::getProjectOrThrowException)
                 .orElseGet(() -> ProjectEntity.builder().build());
 
         optionalProjectName
@@ -79,24 +80,16 @@ public class ProjectController {
 
         return projectDtoFactory.makeProjectDto(savedProject);
 
-
-
     }
 
     @DeleteMapping(DELETE_PROJECT)
     public AskDto deleteProject(@PathVariable("project_id") Long projectId) {
-        getProjectOrThrowException(projectId);
+        controllerHelper.getProjectOrThrowException(projectId);
 
         projectRepository.deleteById(projectId);
         return AskDto.makeDefault(true);
     }
 
-    private ProjectEntity getProjectOrThrowException(Long projectId) {
-        return projectRepository
-                .findById(projectId)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("Project with \"%s\" doesnt exist", projectId)));
-    }
 }
 
 
