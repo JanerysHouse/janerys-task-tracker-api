@@ -18,7 +18,6 @@ public class CustomErrorController implements ErrorController {
     private static final String PATH = "/error";
     private final ErrorAttributes errorAttributes;
 
-
     @RequestMapping(CustomErrorController.PATH)
     public ResponseEntity<ErrorDTO> error(WebRequest webRequest) {
 
